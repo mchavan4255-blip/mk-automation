@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MK AUTOMATION | Manufacturing Management</title>
+<style>
+:root{--navy:#10243e;--blue:#2463eb;--bg:#f3f6fb;--ink:#172033;--muted:#68758a;--line:#e3e9f2;--green:#168653;--amber:#b7791f;--red:#c24141}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px Arial,sans-serif}
+header{background:var(--navy);color:white;padding:20px 18px}
+header h1{margin:0;font-size:24px;letter-spacing:.5px}header p{margin:7px 0 0;color:#d8e3f3}
+nav{display:flex;gap:8px;overflow:auto;padding:12px;background:white;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:2}
+nav button{border:0;background:#eef2f8;color:#24344d;padding:11px 14px;border-radius:9px;white-space:nowrap;font-weight:700}
+nav button.active{background:var(--blue);color:white}
+main{max-width:1100px;margin:20px auto;padding:0 14px}
+h2{font-size:21px;margin:5px 0 16px}.muted{color:var(--muted)}
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.card,.panel{background:white;border:1px solid var(--line);border-radius:13px;padding:16px;box-shadow:0 2px 8px #10243e08}
+.card small{color:var(--muted)}.metric{font-size:28px;font-weight:700;margin-top:8px}
+.toolbar{display:flex;gap:9px;flex-wrap:wrap;margin:12px 0}
+input,select,textarea{width:100%;padding:11px;border:1px solid #ccd5e2;border-radius:8px;font:inherit;background:white}
+.toolbar input{flex:1;min-width:180px}
+button.primary{background:var(--blue);color:white;border:0;border-radius:8px;padding:11px 15px;font-weight:700}
+button.secondary{background:#eaf0f8;color:#24344d;border:0;border-radius:8px;padding:10px 13px}
+table{width:100%;border-collapse:collapse;min-width:680px}th,td{text-align:left;padding:11px 9px;border-bottom:1px solid var(--line);font-size:14px}th{background:#f7f9fc;color:#526078}
+.table-wrap{overflow:auto;background:white;border:1px solid var(--line);border-radius:12px}
+.status{display:inline-block;padding:5px 8px;border-radius:20px;background:#edf2f7;font-size:12px;font-weight:700}
+.status.Completed{background:#e2f5eb;color:#126b40}.status.Pending{background:#fff3d8;color:#8a5a00}
+.form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.field label{display:block;font-weight:700;font-size:13px;margin-bottom:6px}
+.field.full{grid-column:1/-1}.empty{padding:24px;text-align:center;color:var(--muted)}
+.process-list{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin:12px 0}
+.process{display:flex;align-items:center;gap:8px;padding:10px;background:#f7f9fc;border-radius:8px}
+.process input{width:auto}.notice{background:#fff8e7;border:1px solid #f1dfad;padding:12px;border-radius:9px;color:#745315;font-size:13px;margin:15px 0}
+.hidden{display:none!important}footer{text-align:center;color:var(--muted);padding:24px;font-size:12px}
+@media(max-width:700px){.cards{grid-template-columns:repeat(2,1fr)}.form-grid,.process-list{grid-template-columns:1fr}.metric{font-size:24px}}
+</style>
+</head>
+<body>
+<header><h1>MK AUTOMATION</h1><p>Manufacturing Project Management System</p></header>
+<nav>
+<button class="active" data-tab="dashboard">Dashboard</button>
+<button data-tab="projects">Project List</button>
+<button data-tab="process">Project Process</button>
+</nav>
+<main>
+<section id="dashboard">
+<h2>Master Dashboard</h2>
+<div class="cards">
+<div class="card"><small>Total Projects</small><div class="metric" id="total">0</div></div>
+<div class="card"><small>Pending Projects</small><div class="metric" id="pending">0</div></div>
+<div class="card"><small>Completed Projects</small><div class="metric" id="completed">0</div></div>
+<div class="card"><small>Overdue Projects</small><div class="metric" id="overdue">0</div></div>
+</div>
+<div class="panel"><h2>Recent Projects</h2><div id="recent" class="muted">No projects added yet.</div></div>
+<div class="notice">Prototype note: data is saved only in this browser on this device. Do not enter confidential customer or company information yet. Shared employee access and secure login will be added with a database in a later step.</div>
+</section>
+
+<section id="projects" class="hidden">
+<h2>Project List</h2>
+<div class="panel">
+<h3 id="formTitle">Add New Project</h3>
+<form id="projectForm">
+<input type="hidden" id="editId">
+<div class="form-grid">
+<div class="field"><label>Project No *</label><input id="projectNo" required placeholder="e.g. MK-001"></div>
+<div class="field"><label>Project Name *</label><input id="projectName" required placeholder="Project name"></div>
+<div class="field"><label>Customer Name</label><input id="customer" placeholder="Customer"></div>
+<div class="field"><label>Receive Date</label><input id="receiveDate" type="date"></div>
+<div class="field"><label>Dispatch Date (Target)</label><input id="dispatchDate" type="date"></div>
+<div class="field"><label>Project Position</label><select id="position"><option>Pending</option><option>In Progress</option><option>Completed</option></select></div>
+</div>
+<div class="toolbar"><button class="primary" type="submit">Save Project</button><button class="secondary" type="button" id="cancelEdit">Clear</button></div>
+</form></div>
+<div class="toolbar"><input id="search" placeholder="Search project no, name or customer..."></div>
+<div class="table-wrap"><table><thead><tr><th>Project No</th><th>Project Name</th><th>Customer</th><th>Receive Date</th><th>Target Dispatch</th><th>Position</th><th>Actions</th></tr></thead><tbody id="projectRows"></tbody></table></div>
+</section>
+
+<section id="process" class="hidden">
+<h2>Project Process Tracker</h2>
+<div class="panel">
+<div class="field"><label>Select Project</label><select id="processProject"><option value="">Choose a project</option></select></div>
+<div id="processArea" class="hidden">
+<p class="muted" id="processInfo"></p>
+<h3>Manufacturing Stages</h3>
+<div class="process-list" id="processChecks"></div>
+<p><strong>Progress: <span id="progressText">0%</span></strong></p>
+<div style="height:12px;background:#e8edf5;border-radius:20px;overflow:hidden"><div id="progressBar" style="height:100%;width:0;background:#168653"></div></div>
+<p class="muted" id="processStatus"></p>
+</div>
+</div>
+</section>
+</main>
+<footer>MK AUTOMATION · Manufacturing Management Prototype</footer>
+<script>
+const stages=["Design","Material Order","Material Receive","Turning / Milling","Hardening","Wire Cut","Grinding","Blackodizing","Ready for Assembly","Final Inspection","Delivery"];
+let projects=JSON.parse(localStorage.getItem("mkAutomationProjects")||"[]");
+const $=id=>document.getElementById(id);
+function save(){localStorage.setItem("mkAutomationProjects",JSON.stringify(projects));render()}
+function progress(p){return Math.round(stages.filter(s=>p.process?.[s]).length/stages.length*100)}
+function render(){
+$("total").textContent=projects.length;
+$("completed").textContent=projects.filter(p=>progress(p)===100).length;
+$("pending").textContent=projects.filter(p=>progress(p)<100).length;
+const today=new Date().toISOString().slice(0,10);
+$("overdue").textContent=projects.filter(p=>p.dispatchDate&&p.dispatchDate<today&&progress(p)<100).length;
+$("recent").innerHTML=projects.length?projects.slice(-5).reverse().map(p=>`<p><b>${esc(p.projectNo)}</b> — ${esc(p.projectName)} <span class="status">${progress(p)}%</span></p>`).join(""):"No projects added yet.";
+const q=$("search").value.toLowerCase();
+$("projectRows").innerHTML=projects.filter(p=>(p.projectNo+" "+p.projectName+" "+p.customer).toLowerCase().includes(q)).map(p=>`<tr><td>${esc(p.projectNo)}</td><td>${esc(p.projectName)}</td><td>${esc(p.customer||"")}</td><td>${p.receiveDate||"—"}</td><td>${p.dispatchDate||"—"}</td><td><span class="status ${progress(p)===100?"Completed":"Pending"}">${progress(p)===100?"Completed":esc(p.position||"Pending")}</span></td><td><button class="secondary" onclick="editProject('${p.id}')">Edit</button> <button class="secondary" onclick="removeProject('${p.id}')">Delete</button></td></tr>`).join("")||'<tr><td colspan="7" class="empty">No matching projects.</td></tr>';
+const old=$("processProject").value;
+$("processProject").innerHTML='<option value="">Choose a project</option>'+projects.map(p=>`<option value="${p.id}">${esc(p.projectNo)} — ${esc(p.projectName)}</option>`).join("");
+$("processProject").value=old;
+}
+function esc(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+$("projectForm").addEventListener("submit",e=>{e.preventDefault();const id=$("editId").value;const old=projects.find(p=>p.id===id);const p={id:id||String(Date.now()),projectNo:$("projectNo").value.trim(),projectName:$("projectName").value.trim(),customer:$("customer").value.trim(),receiveDate:$("receiveDate").value,dispatchDate:$("dispatchDate").value,position:$("position").value,process:old?.process||{}};if(id)projects=projects.map(x=>x.id===id?p:x);else projects.push(p);$("projectForm").reset();$("editId").value="";$("formTitle").textContent="Add New Project";save()});
+window.editProject=id=>{const p=projects.find(x=>x.id===id);if(!p)return;$("editId").value=p.id;$("projectNo").value=p.projectNo;$("projectName").value=p.projectName;$("customer").value=p.customer;$("receiveDate").value=p.receiveDate;$("dispatchDate").value=p.dispatchDate;$("position").value=p.position;$("formTitle").textContent="Edit Project";window.scrollTo({top:0,behavior:"smooth"})};
+window.removeProject=id=>{if(confirm("Delete this project?")){projects=projects.filter(p=>p.id!==id);save()}};
+$("cancelEdit").onclick=()=>{$("projectForm").reset();$("editId").value="";$("formTitle").textContent="Add New Project"};
+$("search").addEventListener("input",render);
+$("processProject").addEventListener("change",showProcess);
+function showProcess(){const p=projects.find(x=>x.id===$("processProject").value);$("processArea").classList.toggle("hidden",!p);if(!p)return;$("processInfo").textContent=`${p.projectNo} · ${p.projectName} · Customer: ${p.customer||"—"}`;$("processChecks").innerHTML=stages.map(s=>`<label class="process"><input type="checkbox" data-stage="${esc(s)}" ${p.process?.[s]?"checked":""}> ${esc(s)}</label>`).join("");$("processChecks").querySelectorAll("input").forEach(c=>c.addEventListener("change",()=>{p.process=p.process||{};p.process[c.dataset.stage]=c.checked; if(progress(p)===100)p.position="Completed";else p.position="In Progress";save();showProcess()}));const n=progress(p);$("progressText").textContent=n+"%";$("progressBar").style.width=n+"%";$("processStatus").textContent=n===100?"All stages completed. Project marked Completed.":"Update the checkboxes as work progresses."}
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{document.querySelectorAll("nav button").forEach(x=>x.classList.toggle("active",x===b));["dashboard","projects","process"].forEach(id=>$(id).classList.toggle("hidden",id!==b.dataset.tab));});
+render();
+</script>
+</body>
+</html>
